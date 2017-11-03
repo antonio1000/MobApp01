@@ -1,5 +1,7 @@
 package com.example.alinguaglossa.myapplication.dummy;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,50 +25,94 @@ public class DummyContent {
      */
     public static final Map<String, DummyItem> ITEM_MAP = new HashMap<String, DummyItem>();
 
-    private static final int COUNT = 25;
+    //private static final int COUNT = 0;
 
-    static {
+    /*static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
             addItem(createDummyItem(i));
         }
-    }
+    }*/
 
-    private static void addItem(DummyItem item) {
+    public static void addItem(DummyItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.id, item);
     }
 
-    private static DummyItem createDummyItem(int position) {
-        return new DummyItem(String.valueOf(position), "Item " + position, makeDetails(position));
+    public static void clearItem() {
+        ITEMS.clear();
+        ITEM_MAP.clear();
     }
 
-    private static String makeDetails(int position) {
+    public static DummyItem createDummyItem(String id, String artistName, String collectionName, String trackName, Bitmap artworkUrl60, String artworkUrl100, String trackPrice, String releaseDate) {
+
+        return new DummyItem(id, artistName, collectionName, trackName, artworkUrl60, artworkUrl100, trackPrice, releaseDate);
+    }
+
+    /*private static String makeDetails(String myPosition) {
+        int position = Integer.parseInt(myPosition);
         StringBuilder builder = new StringBuilder();
         builder.append("Details about Item: ").append(position);
         for (int i = 0; i < position; i++) {
             builder.append("\nMore details information here.");
         }
         return builder.toString();
-    }
+    }*/
 
     /**
      * A dummy item representing a piece of content.
      */
     public static class DummyItem {
-        public final String id;
-        public final String content;
-        public final String details;
 
-        public DummyItem(String id, String content, String details) {
+        public final String id;
+        //public final String wrapperType;
+        //public final String kind;
+        //public final Integer artistId;
+        //public final Integer collectionId;
+        //public final Integer trackId;
+        public final String artistName; //OK
+        public final String collectionName;
+        public final String trackName;
+        //public final String collectionCensoredName;
+        //public final String trackCensoredName;
+        //public final String artistViewUrl;
+        //public final String collectionViewUrl;
+        //public final String trackViewUrl;
+        //public final String previewUrl;
+        //public final String artworkUrl30;
+        //public final Bitmap artworkUrl30;
+        public final Bitmap artworkUrl60;
+        public final String artworkUrl100;
+        //public final Integer collectionPrice;
+        public final String trackPrice;
+        public final String releaseDate;
+        //public final String collectionExplicitness;
+        //public final String trackExplicitness;
+        //public final Integer discCount;
+        //public final Integer discNumber;
+        //public final Integer trackCount;
+        //public final Integer trackNumber;
+        //public final Integer trackTimeMillis;
+        //public final String country;
+        //public final String currency;
+        //public final String primaryGenreName;
+        //public final Boolean isStreamable;
+
+        public DummyItem(String id, String artistName, String collectionName, String trackName, Bitmap artworkUrl60, String artworkUrl100, String trackPrice, String releaseDate) {
             this.id = id;
-            this.content = content;
-            this.details = details;
+            this.artistName = artistName;
+            this.collectionName = collectionName;
+            this.trackName = trackName;
+            this.artworkUrl60 = artworkUrl60;
+            this.artworkUrl100 = artworkUrl100;
+            this.trackPrice = trackPrice;
+            this.releaseDate = releaseDate;
         }
 
         @Override
         public String toString() {
-            return content;
+            //return content;
+            return trackName;
         }
     }
 }

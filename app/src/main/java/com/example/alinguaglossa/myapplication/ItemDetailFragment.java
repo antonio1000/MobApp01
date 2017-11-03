@@ -1,15 +1,26 @@
 package com.example.alinguaglossa.myapplication;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.alinguaglossa.myapplication.dummy.DownloadImageTask;
 import com.example.alinguaglossa.myapplication.dummy.DummyContent;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -49,7 +60,7 @@ public class ItemDetailFragment extends Fragment {
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.content);
+                appBarLayout.setTitle(mItem.trackName);
             }
         }
     }
@@ -59,11 +70,48 @@ public class ItemDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
 
+        Bitmap myCircleBitmap = createCircularImageFromUrl (mItem.artworkUrl100.toString());
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.details);
+            ((TextView) rootView.findViewById(R.id.item_detail)).setText("artistName: " + mItem.artistName);
+            ((TextView) rootView.findViewById(R.id.item_detail2)).setText("collectionName: " + mItem.collectionName);
+            ((TextView) rootView.findViewById(R.id.item_detail3)).setText("trackName: " + mItem.trackName);
+            ((TextView) rootView.findViewById(R.id.item_detail4)).setText("trackPrice: " + mItem.trackPrice);
+            ((TextView) rootView.findViewById(R.id.item_detail5)).setText("releaseDate: " + mItem.releaseDate);
+            ((ImageView) rootView.findViewById(R.id.circularImage)).setImageBitmap(myCircleBitmap);
         }
 
         return rootView;
+    }
+
+    public Bitmap createCircularImageFromUrl (String stringUrl){
+        URL url = null;
+        Bitmap bitmap = null;
+        Bitmap circleBitmap = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        DownloadImageTask load = new DownloadImageTask();
+        try {
+            bitmap = load.execute(url).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        //Try IT!
+        if (bitmap != null){
+            circleBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+            BitmapShader shader = new BitmapShader (bitmap,  Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            Paint paint = new Paint();
+            paint.setShader(shader);
+
+            Canvas c = new Canvas(circleBitmap);
+            c.drawCircle(bitmap.getWidth()/2, bitmap.getHeight()/2, bitmap.getWidth()/2, paint);
+        }
+        return circleBitmap;
     }
 }

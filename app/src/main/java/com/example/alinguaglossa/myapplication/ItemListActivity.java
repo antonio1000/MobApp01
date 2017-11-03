@@ -1,8 +1,9 @@
 package com.example.alinguaglossa.myapplication;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,10 +20,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import com.example.alinguaglossa.myapplication.dummy.DownloadImageTask;
 import com.example.alinguaglossa.myapplication.dummy.DummyContent;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,9 +38,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * An activity representing a list of Items. This activity
@@ -42,7 +50,7 @@ import java.util.List;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class ItemListActivity extends AppCompatActivity {
+public class ItemListActivity extends AppCompatActivity{
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -130,8 +138,12 @@ public class ItemListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
+            //holder.mIdView.setText(mValues.get(position).id);
+            holder.mContentView.setText(mValues.get(position).artistName);
+            holder.mContentView2.setText(mValues.get(position).trackName);
+            //new DownloadImageTask((ImageView) holder.mContentView3).execute(mValues.get(position).artworkUrl30.toString());
+            holder.mContentView3.setImageBitmap(mValues.get(position).artworkUrl60);
+
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
@@ -143,13 +155,18 @@ public class ItemListActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
+            //final TextView mIdView;
             final TextView mContentView;
+            final TextView mContentView2;
+            final ImageView mContentView3;
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
+                //mIdView = (TextView) view.findViewById(R.id.id_text);
                 mContentView = (TextView) view.findViewById(R.id.content);
+                mContentView2 = (TextView) view.findViewById(R.id.content2);
+                mContentView3 = (ImageView) view.findViewById(R.id.content3);
+
             }
         }
     }
@@ -168,7 +185,10 @@ public class ItemListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.i("Search","Premuto il bottone!");
-                new FetchWeatherData().execute("http://itunes.apple.com/search?term=Jack+Johnson");
+                Log.i("SearchText", query.replace(" ", "+"));
+                DummyContent.clearItem();
+                //new FetchWeatherData().execute("http://itunes.apple.com/search?term=Jack+Johnson");
+                new FetchWeatherData().execute("http://itunes.apple.com/search?term=" + query.replace(" ", "+"));
                 return false;
             }
 
@@ -230,6 +250,7 @@ public class ItemListActivity extends AppCompatActivity {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
+
                 return forecastJsonStr;
             } catch (IOException e) {
                 Log.e("PlaceholderFragment", "Error ", e);
@@ -253,8 +274,39 @@ public class ItemListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            JSONObject obj = null;
+            int nItem =0;
             //tvWeatherJson.setText(s);
-            Log.i("json", s);
+            try {
+
+                obj = new JSONObject(s);
+
+                Log.d("My App", obj.toString());
+
+            } catch (Throwable t) {
+                Log.e("My App", "Could not parse malformed JSON: \"" + s + "\"");
+            }
+
+            try {
+                nItem = obj.getInt("resultCount");
+                JSONArray jsonArray = new JSONArray();
+                jsonArray = obj.getJSONArray("results");
+                for (int i=0; i<nItem; i++){
+                    JSONObject  tmpObj = jsonArray.getJSONObject(i);
+                    URL url = new URL(tmpObj.getString("artworkUrl30"));
+                    DownloadImageTask load = new DownloadImageTask();
+                    Bitmap returned_bitmap = load.execute(url).get();
+                    DummyContent.addItem(DummyContent.createDummyItem(String.valueOf(i), tmpObj.getString("artistName"), tmpObj.getString("collectionName"), tmpObj.getString("trackName"), returned_bitmap, tmpObj.getString("artworkUrl100"), tmpObj.getString("trackPrice"), tmpObj.getString("releaseDate")));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
