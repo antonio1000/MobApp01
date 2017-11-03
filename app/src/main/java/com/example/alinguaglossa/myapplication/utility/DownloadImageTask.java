@@ -1,13 +1,10 @@
-package com.example.alinguaglossa.myapplication.dummy;
+package com.example.alinguaglossa.myapplication.utility;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageView;
-
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 
 /**
@@ -17,11 +14,6 @@ import java.net.URL;
 public class DownloadImageTask extends AsyncTask<URL, Void, Bitmap> {
 
     private static final String LOG_E_TAG = "DownloadImageTask";
-    //private final WeakReference<ImageView> containerImageView;
-
-    //public DownloadImageTask(ImageView imageView) {
-    //    this.containerImageView = new WeakReference<ImageView>(imageView);
-    //}
 
     @Override
     protected Bitmap doInBackground(URL... params) {
@@ -39,10 +31,6 @@ public class DownloadImageTask extends AsyncTask<URL, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap result) {
-        //ImageView imageView = this.containerImageView.get();
-        //if (imageView != null) {
-            //imageView.setImageBitmap(result);
-        //}
     }
 }
 

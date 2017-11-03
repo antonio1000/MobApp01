@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="app_name">Cerca Brano</string>
+    <string name="title_item_detail">Brano</string>
     <string name="title_search">Search</string>
+    <string name="content3Descr">Thumbnail</string>
+    <string name="end_search">Ricerca terminata!</string>
+    <string name="title_activity_splash">Ricerca in corso…</string>
 </resources>

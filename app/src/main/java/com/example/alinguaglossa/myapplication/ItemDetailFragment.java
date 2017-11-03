@@ -15,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.alinguaglossa.myapplication.dummy.DownloadImageTask;
-import com.example.alinguaglossa.myapplication.dummy.DummyContent;
+import com.example.alinguaglossa.myapplication.utility.DownloadImageTask;
+import com.example.alinguaglossa.myapplication.utility.AlbumContent;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,9 +36,9 @@ public class ItemDetailFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
 
     /**
-     * The dummy content this fragment is presenting.
+     * The album content this fragment is presenting.
      */
-    private DummyContent.DummyItem mItem;
+    private AlbumContent.AlbumItem mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -55,10 +55,10 @@ public class ItemDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            mItem = AlbumContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 appBarLayout.setTitle(mItem.trackName);
             }
@@ -70,8 +70,9 @@ public class ItemDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
 
+        //Create a circularImage for the artwork
         Bitmap myCircleBitmap = createCircularImageFromUrl (mItem.artworkUrl100.toString());
-        // Show the dummy content as text in a TextView.
+        // Show the album content as text in a TextView.
         if (mItem != null) {
             ((TextView) rootView.findViewById(R.id.item_detail)).setText("artistName: " + mItem.artistName);
             ((TextView) rootView.findViewById(R.id.item_detail2)).setText("collectionName: " + mItem.collectionName);
@@ -84,16 +85,21 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+    //Create a circularImage Bitmap from a string Url of an artwork image
     public Bitmap createCircularImageFromUrl (String stringUrl){
         URL url = null;
         Bitmap bitmap = null;
         Bitmap circleBitmap = null;
+
         try {
             url = new URL(stringUrl);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
+        //Download the artwork image
         DownloadImageTask load = new DownloadImageTask();
+
         try {
             bitmap = load.execute(url).get();
         } catch (InterruptedException e) {
@@ -101,7 +107,8 @@ public class ItemDetailFragment extends Fragment {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        //Try IT!
+
+        //Create a circularImage
         if (bitmap != null){
             circleBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 

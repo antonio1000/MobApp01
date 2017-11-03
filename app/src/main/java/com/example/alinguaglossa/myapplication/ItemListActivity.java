@@ -2,18 +2,12 @@ package com.example.alinguaglossa.myapplication;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,25 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
-import com.example.alinguaglossa.myapplication.dummy.DownloadImageTask;
-import com.example.alinguaglossa.myapplication.dummy.DummyContent;
+import com.example.alinguaglossa.myapplication.utility.AlbumContent;
+import com.example.alinguaglossa.myapplication.utility.SplashActivity;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * An activity representing a list of Items. This activity
@@ -63,18 +44,9 @@ public class ItemListActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -90,19 +62,19 @@ public class ItemListActivity extends AppCompatActivity{
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, AlbumContent.ITEMS, mTwoPane));
     }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final ItemListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
+        private final List<AlbumContent.AlbumItem> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                AlbumContent.AlbumItem item = (AlbumContent.AlbumItem) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
                     arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id);
@@ -122,7 +94,7 @@ public class ItemListActivity extends AppCompatActivity{
         };
 
         SimpleItemRecyclerViewAdapter(ItemListActivity parent,
-                                      List<DummyContent.DummyItem> items,
+                                      List<AlbumContent.AlbumItem> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
@@ -138,10 +110,8 @@ public class ItemListActivity extends AppCompatActivity{
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            //holder.mIdView.setText(mValues.get(position).id);
             holder.mContentView.setText(mValues.get(position).artistName);
             holder.mContentView2.setText(mValues.get(position).trackName);
-            //new DownloadImageTask((ImageView) holder.mContentView3).execute(mValues.get(position).artworkUrl30.toString());
             holder.mContentView3.setImageBitmap(mValues.get(position).artworkUrl60);
 
 
@@ -155,17 +125,15 @@ public class ItemListActivity extends AppCompatActivity{
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            //final TextView mIdView;
             final TextView mContentView;
             final TextView mContentView2;
             final ImageView mContentView3;
 
             ViewHolder(View view) {
                 super(view);
-                //mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
-                mContentView2 = (TextView) view.findViewById(R.id.content2);
-                mContentView3 = (ImageView) view.findViewById(R.id.content3);
+                mContentView = view.findViewById(R.id.content);
+                mContentView2 = view.findViewById(R.id.content2);
+                mContentView3 = view.findViewById(R.id.content3);
 
             }
         }
@@ -179,16 +147,16 @@ public class ItemListActivity extends AppCompatActivity{
         MenuItem item = menu.findItem(R.id.menuSearch);
 
         // Get the SearchView and set the searchable configuration
-        //SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.i("Search","Premuto il bottone!");
-                Log.i("SearchText", query.replace(" ", "+"));
-                DummyContent.clearItem();
-                //new FetchWeatherData().execute("http://itunes.apple.com/search?term=Jack+Johnson");
-                new FetchWeatherData().execute("http://itunes.apple.com/search?term=" + query.replace(" ", "+"));
+                AlbumContent.clearItem();
+                Intent i = new Intent(getApplicationContext(), SplashActivity.class);
+                Bundle b = new Bundle();
+                b.putString("query", query);
+                i.putExtras(b);
+                startActivity(i);
                 return false;
             }
 
@@ -197,116 +165,10 @@ public class ItemListActivity extends AppCompatActivity{
                 return false;
             }
         });
-        // Assumes current activity is the searchable activity
-        //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        //searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         searchView.setSubmitButtonEnabled(true);
 
         return super.onCreateOptionsMenu(menu);
     }
 
-    private class FetchWeatherData extends AsyncTask<String, Void, String> {
 
-        @Override
-        protected String doInBackground(String... uri) {
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
-            String forecastJsonStr = null;
-
-            try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
-                URL url = new URL(uri[0]);
-
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                forecastJsonStr = buffer.toString();
-
-                return forecastJsonStr;
-            } catch (IOException e) {
-                Log.e("PlaceholderFragment", "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
-                return null;
-            } finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e("PlaceholderFragment", "Error closing stream", e);
-                    }
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            JSONObject obj = null;
-            int nItem =0;
-            //tvWeatherJson.setText(s);
-            try {
-
-                obj = new JSONObject(s);
-
-                Log.d("My App", obj.toString());
-
-            } catch (Throwable t) {
-                Log.e("My App", "Could not parse malformed JSON: \"" + s + "\"");
-            }
-
-            try {
-                nItem = obj.getInt("resultCount");
-                JSONArray jsonArray = new JSONArray();
-                jsonArray = obj.getJSONArray("results");
-                for (int i=0; i<nItem; i++){
-                    JSONObject  tmpObj = jsonArray.getJSONObject(i);
-                    URL url = new URL(tmpObj.getString("artworkUrl30"));
-                    DownloadImageTask load = new DownloadImageTask();
-                    Bitmap returned_bitmap = load.execute(url).get();
-                    DummyContent.addItem(DummyContent.createDummyItem(String.valueOf(i), tmpObj.getString("artistName"), tmpObj.getString("collectionName"), tmpObj.getString("trackName"), returned_bitmap, tmpObj.getString("artworkUrl100"), tmpObj.getString("trackPrice"), tmpObj.getString("releaseDate")));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
